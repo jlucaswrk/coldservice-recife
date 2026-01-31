@@ -22,19 +22,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup Gradle 8.2
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.2'
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Accept Android SDK licenses
         run: yes | sdkmanager --licenses || true
 
-      - name: Make gradlew executable
-        working-directory: ./technician-app
-        run: chmod +x ./gradlew
-
       - name: Build Debug APK
         working-directory: ./technician-app
-        run: ./gradlew assembleDebug --no-daemon
+        run: gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
