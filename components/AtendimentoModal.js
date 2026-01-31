@@ -233,37 +233,49 @@ export default function AtendimentoModal({
 
   if (!isOpen) return null;
 
-  // Versão minimizada
+  // Versão minimizada - maior e mais visível
   if (isMinimized) {
     return (
       <div
         className="fixed bottom-24 right-4 z-[100] cursor-pointer"
         onClick={() => setMinimized(false)}
       >
-        <div className="bg-[#0d1526] border border-[#243556] rounded-xl p-4 shadow-2xl min-w-[220px]">
-          <div className="flex items-center gap-3">
+        <div className={`border-2 rounded-2xl p-5 shadow-2xl min-w-[260px] ${
+          technicianLocation?.online
+            ? 'bg-[#0d1526] border-[#25d366]'
+            : 'bg-[#0d1526] border-[#f59e0b]'
+        }`}>
+          <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-10 h-10 bg-[#1a2744] rounded-lg flex items-center justify-center border border-[#243556]">
-                <svg className="w-5 h-5 text-[#6bb8e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className={`w-14 h-14 rounded-xl flex items-center justify-center border-2 ${
+                technicianLocation?.online
+                  ? 'bg-[#25d366]/10 border-[#25d366]'
+                  : 'bg-[#f59e0b]/10 border-[#f59e0b]'
+              }`}>
+                <svg className={`w-7 h-7 ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
               {technicianLocation?.online && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#25d366] rounded-full border-2 border-[#0d1526]" />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#25d366] rounded-full border-2 border-[#0d1526] animate-pulse" />
               )}
             </div>
             <div className="flex-1">
-              <p className="text-white text-sm font-medium">
-                {technicianLocation?.online ? 'Técnico a caminho' : 'Aguardando...'}
+              <p className={`text-lg font-bold ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`}>
+                {technicianLocation?.online ? 'A CAMINHO!' : 'AGUARDANDO'}
               </p>
-              {distance !== null && technicianLocation?.online && (
-                <p className="text-[#6bb8e8] text-xs font-mono">
-                  {formatDistance(distance)} • {estimateArrival(distance)}
+              {distance !== null && technicianLocation?.online ? (
+                <p className="text-white text-base font-medium">
+                  {formatDistance(distance)} - {estimateArrival(distance)}
+                </p>
+              ) : (
+                <p className="text-white/60 text-sm">
+                  Toque para ver detalhes
                 </p>
               )}
             </div>
-            <svg className="w-4 h-4 text-[#9dd1f1]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-6 h-6 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
             </svg>
           </div>
@@ -284,22 +296,22 @@ export default function AtendimentoModal({
       <div className="relative w-full max-w-md">
         <div className="bg-[#0d1526] border border-[#243556] rounded-xl overflow-hidden shadow-2xl">
 
-          {/* Header - limpo, sem botões */}
-          <div className="px-5 py-4 border-b border-[#243556]">
+          {/* Header - mais visível e legível */}
+          <div className="px-5 py-5 border-b border-[#243556] bg-[#1a2744]/50">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-white font-bold text-lg">
-                  {step === 'identify' ? 'Atendimento Urgente' : 'Rastreamento'}
+                <h2 className="text-white font-black text-xl">
+                  {step === 'identify' ? 'Atendimento Urgente' : 'Acompanhamento'}
                 </h2>
-                <p className="text-[#9dd1f1]/60 text-xs mt-0.5">
-                  {step === 'identify' ? 'Acompanhe a chegada do técnico' : `Olá, ${name}`}
+                <p className="text-white/60 text-base mt-1">
+                  {step === 'identify' ? 'Veja onde o técnico está' : `Olá, ${name}!`}
                 </p>
               </div>
               <button
                 onClick={handleClose}
-                className="text-[#9dd1f1]/40 hover:text-[#9dd1f1] transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#243556] hover:bg-[#34496d] transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -311,74 +323,74 @@ export default function AtendimentoModal({
             {/* Step 1: Identificação */}
             {step === 'identify' && (
               <div className="space-y-5">
-                {/* Input de nome - direto, sem enrolação */}
+                {/* Input de nome - maior e mais claro */}
                 <div>
-                  <label className="block text-sm text-[#9dd1f1]/80 mb-2">
-                    Como podemos te chamar?
+                  <label className="block text-base text-white mb-3 font-medium">
+                    Qual é o seu nome?
                   </label>
                   <input
                     ref={inputRef}
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Digite seu nome"
-                    className="w-full px-4 py-3 bg-[#1a2744] border border-[#243556] rounded-lg text-white placeholder-[#9dd1f1]/30 focus:outline-none focus:border-[#6bb8e8] transition-colors"
+                    placeholder="Digite aqui seu nome"
+                    className="w-full px-4 py-4 bg-[#1a2744] border-2 border-[#243556] rounded-xl text-white text-lg placeholder-[#9dd1f1]/40 focus:outline-none focus:border-[#6bb8e8] transition-colors"
                     onKeyDown={(e) => e.key === 'Enter' && handleStartTracking()}
                   />
                 </div>
 
-                {/* Informações sobre o sistema */}
-                <div className="bg-[#1a2744]/50 border border-[#243556] rounded-lg p-4 space-y-3">
-                  <p className="text-[#9dd1f1]/60 text-xs uppercase tracking-wider font-medium">
-                    Como funciona
+                {/* Informações sobre o sistema - mais legível */}
+                <div className="bg-[#1a2744]/50 border border-[#243556] rounded-xl p-5 space-y-4">
+                  <p className="text-white text-base font-bold">
+                    Como funciona:
                   </p>
-                  <div className="space-y-2.5">
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded bg-[#6bb8e8]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-[#6bb8e8] text-xs font-bold">1</span>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-[#6bb8e8] flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-sm font-bold">1</span>
                       </div>
-                      <p className="text-[#9dd1f1]/80 text-sm">
-                        Você inicia o atendimento e compartilha sua localização
+                      <p className="text-white/90 text-base pt-1">
+                        Você coloca seu nome e clica no botão verde
                       </p>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded bg-[#6bb8e8]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-[#6bb8e8] text-xs font-bold">2</span>
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-[#6bb8e8] flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-sm font-bold">2</span>
                       </div>
-                      <p className="text-[#9dd1f1]/80 text-sm">
-                        O técnico recebe o chamado e inicia o deslocamento
+                      <p className="text-white/90 text-base pt-1">
+                        O técnico abre o aplicativo e liga a localização
                       </p>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded bg-[#6bb8e8]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-[#6bb8e8] text-xs font-bold">3</span>
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-[#6bb8e8] flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-sm font-bold">3</span>
                       </div>
-                      <p className="text-[#9dd1f1]/80 text-sm">
-                        Acompanhe pelo mapa em tempo real até a chegada
+                      <p className="text-white/90 text-base pt-1">
+                        Você vê no mapa onde ele está e quando chega
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Status de localização */}
+                {/* Status de localização - mais visível */}
                 {customerLocation && (
-                  <div className="flex items-center gap-2 text-[#25d366]">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex items-center gap-3 bg-[#25d366]/10 border border-[#25d366]/30 rounded-xl p-4">
+                    <svg className="w-6 h-6 text-[#25d366]" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm">
-                      Localização detectada {customerLocation.isApproximate && '(aproximada)'}
+                    <span className="text-[#25d366] text-base font-medium">
+                      Sua localização foi encontrada {customerLocation.isApproximate && '(aproximada)'}
                     </span>
                   </div>
                 )}
 
-                {/* Botão iniciar */}
+                {/* Botão iniciar - maior e mais claro */}
                 <button
                   onClick={handleStartTracking}
                   disabled={!name.trim()}
-                  className="w-full py-3.5 bg-[#6bb8e8] hover:bg-[#5aa8d8] disabled:bg-[#243556] disabled:text-[#9dd1f1]/40 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+                  className="w-full py-5 bg-[#25d366] hover:bg-[#1da851] disabled:bg-[#243556] disabled:text-[#9dd1f1]/40 text-white text-xl font-bold rounded-xl transition-colors disabled:cursor-not-allowed shadow-lg"
                 >
-                  Iniciar Rastreamento
+                  {name.trim() ? 'INICIAR AGORA' : 'Digite seu nome acima'}
                 </button>
               </div>
             )}
@@ -386,22 +398,31 @@ export default function AtendimentoModal({
             {/* Step 2: Tracking */}
             {step === 'tracking' && (
               <div className="space-y-4">
-                {/* Status do técnico */}
-                <div className={`flex items-center gap-3 p-3 rounded-lg border ${
+                {/* Status do técnico - MUITO mais visível */}
+                <div className={`p-4 rounded-xl border-2 ${
                   technicianLocation?.online
-                    ? 'bg-[#25d366]/5 border-[#25d366]/20'
-                    : 'bg-[#f59e0b]/5 border-[#f59e0b]/20'
+                    ? 'bg-[#25d366]/10 border-[#25d366]'
+                    : 'bg-[#f59e0b]/10 border-[#f59e0b]'
                 }`}>
-                  <div className={`w-2 h-2 rounded-full ${
-                    technicianLocation?.online ? 'bg-[#25d366]' : 'bg-[#f59e0b] animate-pulse'
-                  }`} />
-                  <span className={`text-sm font-medium ${
-                    technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'
+                  <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 rounded-full ${
+                      technicianLocation?.online ? 'bg-[#25d366]' : 'bg-[#f59e0b] animate-pulse'
+                    }`} />
+                    <span className={`text-lg font-bold ${
+                      technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'
+                    }`}>
+                      {technicianLocation?.online
+                        ? 'TÉCNICO A CAMINHO!'
+                        : 'AGUARDANDO O TÉCNICO'}
+                    </span>
+                  </div>
+                  <p className={`mt-2 text-base ${
+                    technicianLocation?.online ? 'text-[#25d366]/80' : 'text-[#f59e0b]/80'
                   }`}>
                     {technicianLocation?.online
-                      ? 'Técnico compartilhando localização'
-                      : 'Aguardando técnico iniciar deslocamento'}
-                  </span>
+                      ? 'Você pode ver a localização dele no mapa abaixo'
+                      : 'O técnico precisa abrir o app e ligar a localização'}
+                  </p>
                 </div>
 
                 {/* Mapa */}
@@ -502,34 +523,43 @@ export default function AtendimentoModal({
                   </div>
                 </div>
 
-                {/* Stats */}
+                {/* Stats - Maior e mais claro */}
                 {technicianLocation?.online && distance !== null && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-[#1a2744] rounded-lg p-3 text-center border border-[#243556]">
-                      <p className="text-xl font-bold text-[#6bb8e8] font-mono">{formatDistance(distance)}</p>
-                      <p className="text-[10px] text-[#9dd1f1]/50 uppercase tracking-wider mt-1">Distância</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-[#1a2744] rounded-xl p-4 text-center border-2 border-[#6bb8e8]/30">
+                      <p className="text-3xl font-black text-[#6bb8e8]">{formatDistance(distance)}</p>
+                      <p className="text-sm text-white/70 font-medium mt-1">de distância</p>
                     </div>
-                    <div className="bg-[#1a2744] rounded-lg p-3 text-center border border-[#243556]">
-                      <p className="text-xl font-bold text-[#25d366] font-mono">{estimateArrival(distance)}</p>
-                      <p className="text-[10px] text-[#9dd1f1]/50 uppercase tracking-wider mt-1">Previsão</p>
+                    <div className="bg-[#1a2744] rounded-xl p-4 text-center border-2 border-[#25d366]/30">
+                      <p className="text-3xl font-black text-[#25d366]">{estimateArrival(distance)}</p>
+                      <p className="text-sm text-white/70 font-medium mt-1">para chegar</p>
                     </div>
                   </div>
                 )}
 
-                {/* WhatsApp button */}
+                {/* Dica quando técnico não está online */}
+                {!technicianLocation?.online && (
+                  <div className="bg-[#1a2744]/50 rounded-xl p-4 border border-[#243556]">
+                    <p className="text-white/80 text-base text-center">
+                      Você pode ligar para o técnico pelo WhatsApp enquanto aguarda
+                    </p>
+                  </div>
+                )}
+
+                {/* WhatsApp button - Maior */}
                 <button
                   onClick={openWhatsApp}
-                  className="w-full py-3.5 bg-[#25d366] hover:bg-[#1da851] text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-5 bg-[#25d366] hover:bg-[#1da851] text-white text-xl font-bold rounded-xl transition-colors flex items-center justify-center gap-3 shadow-lg"
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                   </svg>
-                  Conversar no WhatsApp
+                  FALAR NO WHATSAPP
                 </button>
 
-                {/* Minimize hint */}
-                <p className="text-center text-[#9dd1f1]/30 text-xs">
-                  Clique fora para minimizar e continuar navegando
+                {/* Minimize hint - Mais claro */}
+                <p className="text-center text-white/40 text-sm">
+                  Toque fora desta janela para minimizar
                 </p>
               </div>
             )}

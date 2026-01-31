@@ -206,57 +206,92 @@ fun MainScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Logo/Header
+            // Logo/Header - Maior e mais legível
             Text(
                 text = "COLD SERVICE",
-                fontSize = 28.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Black,
                 color = ColdBlue,
-                letterSpacing = 4.sp
+                letterSpacing = 2.sp
             )
 
             Text(
-                text = "TÉCNICO",
-                fontSize = 14.sp,
+                text = "Aplicativo do Técnico",
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF6B7280),
-                letterSpacing = 8.sp
+                color = Color(0xFF9CA3AF),
+                letterSpacing = 1.sp
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Main Button Area
+            // Instrução clara no topo
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isTracking) Color(0xFF14532D) else Color(0xFF1E3A5F)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = if (isTracking)
+                            "VOCÊ ESTÁ VISÍVEL PARA O CLIENTE"
+                            else "TOQUE NO BOTÃO ABAIXO PARA INICIAR",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (isTracking)
+                            "Sua localização está sendo enviada"
+                            else "O cliente está aguardando você",
+                        fontSize = 14.sp,
+                        color = Color(0xFFD1D5DB),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(0.5f))
+
+            // Main Button Area - Maior e mais claro
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(280.dp)
+                modifier = Modifier.size(300.dp)
             ) {
                 // Pulse rings when active
                 if (isTracking) {
                     Box(
                         modifier = Modifier
-                            .size(280.dp)
+                            .size(300.dp)
                             .scale(pulseScale)
                             .clip(CircleShape)
                             .background(ColdGreen.copy(alpha = pulseAlpha * 0.3f))
                     )
                     Box(
                         modifier = Modifier
-                            .size(240.dp)
+                            .size(260.dp)
                             .scale(pulseScale)
                             .clip(CircleShape)
                             .background(ColdGreen.copy(alpha = pulseAlpha * 0.5f))
                     )
                 }
 
-                // Main button
+                // Main button - Muito maior
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(200.dp)
+                        .size(220.dp)
                         .shadow(
-                            elevation = if (isTracking) 24.dp else 8.dp,
+                            elevation = if (isTracking) 24.dp else 12.dp,
                             shape = CircleShape,
                             ambientColor = if (isTracking) ColdGreen else ColdBlue,
                             spotColor = if (isTracking) ColdGreen else ColdBlue
@@ -267,17 +302,17 @@ fun MainScreen(
                                 colors = if (isTracking) {
                                     listOf(ColdGreen, ColdGreenDark)
                                 } else {
-                                    listOf(DarkCard, DarkSurface)
+                                    listOf(ColdBlue, ColdBlueDark)
                                 }
                             )
                         )
                         .border(
-                            width = 3.dp,
+                            width = 4.dp,
                             brush = Brush.linearGradient(
                                 colors = if (isTracking) {
                                     listOf(ColdGreen.copy(alpha = 0.8f), ColdGreenDark)
                                 } else {
-                                    listOf(ColdBlue.copy(alpha = 0.5f), ColdBlueDark.copy(alpha = 0.3f))
+                                    listOf(ColdBlue.copy(alpha = 0.8f), ColdBlueDark)
                                 }
                             ),
                             shape = CircleShape
@@ -285,27 +320,32 @@ fun MainScreen(
                         .clickable { onToggleTracking() }
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = if (isTracking) "📍" else "⏸",
-                            fontSize = 48.sp
+                            text = if (isTracking) "LIGADO" else "DESLIGADO",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            letterSpacing = 1.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = if (isTracking) "ATIVO" else "PAUSADO",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            letterSpacing = 2.sp
+                            text = if (isTracking) "Toque para\nPARAR" else "Toque para\nINICIAR",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White.copy(alpha = 0.9f),
+                            textAlign = TextAlign.Center,
+                            lineHeight = 22.sp
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.weight(0.5f))
 
-            // Status Card
+            // Status Card - Mais claro e legível
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = DarkCard),
@@ -321,72 +361,87 @@ fun MainScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(12.dp)
+                                .size(16.dp)
                                 .clip(CircleShape)
-                                .background(if (isTracking) ColdGreen else Color(0xFF6B7280))
+                                .background(if (isTracking) ColdGreen else Color(0xFFEF4444))
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = if (isTracking) "Compartilhando localização" else "Localização pausada",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
+                            text = if (isTracking) "LOCALIZAÇÃO ATIVA" else "LOCALIZAÇÃO PARADA",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isTracking) ColdGreen else Color(0xFFEF4444)
                         )
                     }
 
-                    if (isTracking) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "O cliente pode ver sua posição em tempo real",
-                            fontSize = 13.sp,
-                            color = Color(0xFF9CA3AF),
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = if (isTracking)
+                            "O cliente pode ver onde você está no mapa"
+                            else "O cliente NÃO consegue ver sua posição",
+                        fontSize = 15.sp,
+                        color = Color(0xFF9CA3AF),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Permission warning
+            // Permission warning - Mais visível
             if (!hasLocationPermission || !hasBackgroundPermission) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onRequestPermissions() },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF7C2D12)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFDC2626)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "⚠️", fontSize = 24.sp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
+                        Text(
+                            text = "ATENÇÃO!",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Você precisa permitir o acesso à localização",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White)
+                                .padding(12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Text(
-                                text = "Permissões necessárias",
-                                fontSize = 14.sp,
+                                text = "TOQUE AQUI PARA PERMITIR",
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = "Toque para permitir acesso à localização",
-                                fontSize = 12.sp,
-                                color = Color(0xFFFED7AA)
+                                color = Color(0xFFDC2626)
                             )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Footer
             Text(
-                text = "Refrigeração Recife",
-                fontSize = 12.sp,
-                color = Color(0xFF4B5563)
+                text = "Cold Service Refrigeração - Recife",
+                fontSize = 14.sp,
+                color = Color(0xFF6B7280)
             )
         }
     }
