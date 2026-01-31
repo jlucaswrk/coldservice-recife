@@ -69,10 +69,10 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Phone CTA (Desktop) */}
+          {/* Phone CTA (Desktop) - WCAG AA Compliant */}
           <a
             href={`tel:${siteConfig.phoneClean}`}
-            className="hidden md:flex items-center gap-3 bg-gradient-to-r from-[#ff6b35] to-[#e55a2b] hover:from-[#ff8c5a] hover:to-[#ff6b35] text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#ff6b35]/30"
+            className="hidden md:flex items-center gap-3 bg-gradient-to-r from-[#c54a1c] to-[#a83d15] hover:from-[#d4551f] hover:to-[#c54a1c] text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#c54a1c]/30"
           >
             <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,10 +84,10 @@ export default function Header() {
 
           {/* Mobile Actions */}
           <div className="flex lg:hidden items-center gap-3">
-            {/* Mobile Phone Button */}
+            {/* Mobile Phone Button - WCAG AA Compliant */}
             <a
               href={`tel:${siteConfig.phoneClean}`}
-              className="flex items-center justify-center w-11 h-11 bg-gradient-to-r from-[#ff6b35] to-[#e55a2b] text-white rounded-xl transition-transform hover:scale-110"
+              className="flex items-center justify-center w-11 h-11 bg-gradient-to-r from-[#c54a1c] to-[#a83d15] text-white rounded-xl transition-transform hover:scale-110"
               aria-label="Ligar agora"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

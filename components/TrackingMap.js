@@ -69,12 +69,14 @@ export default function TrackingMap({
   mode = 'default', // 'default' | 'tracking' | 'minimal'
   onLocationDetected = null,
   className = '',
+  customerName = null, // Nome do cliente para personalização
 }) {
   const [userLocation, setUserLocation] = useState(customerLocation);
   const [techLocation, setTechLocation] = useState(technicianLocation);
   const [distance, setDistance] = useState(null);
   const [radarAngle, setRadarAngle] = useState(0);
   const [pulsePhase, setPulsePhase] = useState(0);
+  const [neighborhoodName, setNeighborhoodName] = useState(null);
 
   // Atualiza localização do cliente
   useEffect(() => {
@@ -85,6 +87,7 @@ export default function TrackingMap({
         mapX: nearest.mapX,
         mapY: nearest.mapY
       });
+      setNeighborhoodName(nearest.name);
     }
   }, [customerLocation]);
 
@@ -150,7 +153,11 @@ export default function TrackingMap({
               <div className="w-2 h-2 rounded-full bg-[#25d366]" />
             </div>
             <span className="text-[10px] font-mono text-[#9dd1f1]/60 uppercase tracking-widest">
-              {isTracking ? 'Rastreamento Ativo' : 'Central de Operações'}
+              {isTracking && neighborhoodName
+                ? `Atendimento urgente • ${neighborhoodName}`
+                : isTracking
+                  ? 'Rastreamento Ativo'
+                  : 'Central de Operações'}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -161,8 +168,31 @@ export default function TrackingMap({
           </div>
         </div>
 
+        {/* Mensagem personalizada para atendimento urgente */}
+        {isTracking && neighborhoodName && (
+          <div className="px-4 pt-4 pb-2">
+            <div className="bg-gradient-to-r from-[#ff6b35]/10 to-[#f59e0b]/10 border border-[#ff6b35]/30 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[#ff6b35] animate-pulse">🚨</span>
+                <span className="text-xs font-bold text-[#ff6b35] uppercase tracking-wider">
+                  Atendimento Urgente
+                </span>
+              </div>
+              <p className="text-sm text-white/90">
+                {customerName
+                  ? `${customerName}, estamos a caminho do seu endereço em `
+                  : 'Técnico a caminho da sua localização em '}
+                <span className="font-bold text-[#6bb8e8]">{neighborhoodName}</span>
+              </p>
+              <p className="text-[10px] text-[#9dd1f1]/50 mt-1">
+                Acompanhe em tempo real no mapa abaixo
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Map Section */}
-        <div className="relative p-4">
+        <div className="relative p-4 pt-2">
           <div className="relative h-56 rounded-lg bg-[#0d1526] border border-[#243556]/50 overflow-hidden">
             {/* Grid overlay */}
             <div className="absolute inset-0 opacity-20" style={{
@@ -231,7 +261,7 @@ export default function TrackingMap({
               >
                 <div className="relative mb-1 animate-fade-up">
                   <div className="bg-[#ff6b35] text-white text-[9px] font-bold px-2 py-1 rounded-md whitespace-nowrap shadow-lg shadow-[#ff6b35]/30">
-                    📍 {isTracking ? 'Sua localização' : 'Você está aqui'}
+                    📍 {isTracking && neighborhoodName ? neighborhoodName : (isTracking ? 'Sua localização' : 'Você está aqui')}
                   </div>
                   <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#ff6b35]" />
                 </div>

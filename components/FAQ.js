@@ -62,12 +62,12 @@ export default function FAQ() {
           ))}
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom CTA - WCAG AA Compliant */}
         <div className="mt-12 text-center">
           <p className="text-[#6c757d] mb-4">Ainda tem dúvidas?</p>
           <a
             href="#contato"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-[#ff6b35] to-[#e55a2b] text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#ff6b35]/30"
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-[#c54a1c] to-[#a83d15] text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#c54a1c]/30"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />

@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNativeGeolocation } from '@/lib/useNativeGeolocation';
 
 /**
  * AtendimentoModal - Sistema de Atendimento Urgente
- * Com Fused Location Provider nativo via Capacitor
+ * Com geolocalização web otimizada para máxima precisão
  */
 
 // Haversine formula
@@ -69,55 +68,18 @@ export default function AtendimentoModal({
   const [radarAngle, setRadarAngle] = useState(0);
   const [neighborhoodName, setNeighborhoodName] = useState(null);
 
+  const [locationAccuracy, setLocationAccuracy] = useState(null);
+  const [isRefiningLocation, setIsRefiningLocation] = useState(false);
+
   const inputRef = useRef(null);
   const pollIntervalRef = useRef(null);
-
-  // Hook de geolocalização ULTRA PRECISA com Fused Location Provider
-  const {
-    location: geoLocation,
-    accuracy: locationAccuracy,
-    isRefining: isRefiningLocation,
-    source: locationSource,
-    getLocation,
-    stopWatch,
-    isNative
-  } = useNativeGeolocation({
-    targetAccuracy: 10,      // 10m - precisão estilo Uber
-    goodEnoughAccuracy: 15,  // Aceita após estabilizar
-    timeout: 60000,          // 60s máximo
-  });
 
   // Helper para minimizar/maximizar
   const setMinimized = (value) => {
     if (onMinimize) onMinimize(value);
   };
 
-  // Atualiza customerLocation quando geoLocation muda
-  useEffect(() => {
-    if (geoLocation && !geoLocation.isApproximate) {
-      const nearest = findNearest(geoLocation.latitude, geoLocation.longitude);
-      setCustomerLocation({
-        latitude: geoLocation.latitude,
-        longitude: geoLocation.longitude,
-        accuracy: geoLocation.accuracy,
-        mapX: nearest.mapX,
-        mapY: nearest.mapY
-      });
-      setNeighborhoodName(nearest.name);
-    } else if (geoLocation?.isApproximate) {
-      const nearest = findNearest(geoLocation.latitude, geoLocation.longitude);
-      setCustomerLocation({
-        latitude: geoLocation.latitude,
-        longitude: geoLocation.longitude,
-        mapX: nearest.mapX,
-        mapY: nearest.mapY,
-        isApproximate: true
-      });
-      setNeighborhoodName(nearest.name);
-    }
-  }, [geoLocation]);
-
-  // Inicia geolocalização quando modal abre
+  // Obter localização com alta precisão (Web API otimizada)
   useEffect(() => {
     if (!isOpen) return;
 
@@ -130,16 +92,104 @@ export default function AtendimentoModal({
         mapY: nearest.mapY
       });
       setNeighborhoodName(nearest.name);
+      setLocationAccuracy(null);
+      setIsRefiningLocation(false);
       return;
     }
 
-    // Inicia a captura de localização precisa
-    getLocation();
+    if (!navigator.geolocation) return;
+
+    let watchId = null;
+    let bestPosition = null;
+    let lastPositions = [];
+    const TARGET_ACCURACY = 10;
+    const GOOD_ENOUGH_ACCURACY = 15;
+    const MAX_TIME = 60000;
+    const MIN_STABLE_READINGS = 3;
+
+    setIsRefiningLocation(true);
+    setLocationAccuracy(null);
+
+    const isStable = () => {
+      if (lastPositions.length < MIN_STABLE_READINGS) return false;
+      const recentAccuracies = lastPositions.slice(-MIN_STABLE_READINGS).map(p => p.coords.accuracy);
+      const avgAccuracy = recentAccuracies.reduce((a, b) => a + b, 0) / recentAccuracies.length;
+      const variance = recentAccuracies.reduce((sum, acc) => sum + Math.pow(acc - avgAccuracy, 2), 0) / recentAccuracies.length;
+      return variance < 25 && avgAccuracy <= GOOD_ENOUGH_ACCURACY;
+    };
+
+    const updateLocation = (position, isFinal = false) => {
+      const nearest = findNearest(position.coords.latitude, position.coords.longitude);
+      setCustomerLocation({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        mapX: nearest.mapX,
+        mapY: nearest.mapY
+      });
+      setNeighborhoodName(nearest.name);
+      setLocationAccuracy(Math.round(position.coords.accuracy));
+      if (isFinal) setIsRefiningLocation(false);
+    };
+
+    watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        lastPositions.push(position);
+        if (!bestPosition || position.coords.accuracy < bestPosition.coords.accuracy) {
+          bestPosition = position;
+        }
+        updateLocation(bestPosition, false);
+        if (position.coords.accuracy <= TARGET_ACCURACY || isStable()) {
+          navigator.geolocation.clearWatch(watchId);
+          updateLocation(bestPosition, true);
+        }
+      },
+      () => {
+        if (watchId) navigator.geolocation.clearWatch(watchId);
+        setIsRefiningLocation(false);
+        fetch('https://ipapi.co/json/')
+          .then(res => res.json())
+          .then(data => {
+            if (data.latitude) {
+              const nearest = findNearest(data.latitude, data.longitude);
+              setCustomerLocation({
+                latitude: data.latitude,
+                longitude: data.longitude,
+                mapX: nearest.mapX,
+                mapY: nearest.mapY,
+                isApproximate: true
+              });
+              setNeighborhoodName(nearest.name);
+            }
+          })
+          .catch(() => {
+            const fallbackNearest = findNearest(-8.0476, -34.8770);
+            setCustomerLocation({
+              latitude: -8.0476,
+              longitude: -34.8770,
+              mapX: 85,
+              mapY: 50,
+              isApproximate: true
+            });
+            setNeighborhoodName(fallbackNearest.name);
+          });
+      },
+      { enableHighAccuracy: true, timeout: MAX_TIME, maximumAge: 0 }
+    );
+
+    const timeoutId = setTimeout(() => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+        if (bestPosition) updateLocation(bestPosition, true);
+        else setIsRefiningLocation(false);
+      }
+    }, MAX_TIME);
 
     return () => {
-      stopWatch();
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      clearTimeout(timeoutId);
     };
-  }, [isOpen, initialLocation, getLocation, stopWatch]);
+  }, [isOpen, initialLocation]);
 
   // Focus no input quando abre
   useEffect(() => {
@@ -435,8 +485,7 @@ export default function AtendimentoModal({
                               <p className="text-[#25d366]/70 text-sm">
                                 Precisão: ±{locationAccuracy}m
                                 {locationAccuracy <= 5 && ' 🎯'}
-                                {locationAccuracy > 5 && locationAccuracy <= 10 && (isNative ? ' (Fused GPS)' : ' (GPS)')}
-                                {isNative && locationAccuracy <= 5 && ' • Fused Location'}
+                                {locationAccuracy > 5 && locationAccuracy <= 10 && ' (GPS)'}
                               </p>
                             )}
                           </div>
