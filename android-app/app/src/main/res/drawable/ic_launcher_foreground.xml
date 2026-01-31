@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Snowflake icon for ColdService -->
+    <group
+        android:translateX="27"
+        android:translateY="27">
+        <!-- Center circle -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M27,27m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"/>
+        <!-- Vertical line -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:pathData="M27,4L27,50"/>
+        <!-- Horizontal line -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:pathData="M4,27L50,27"/>
+        <!-- Diagonal lines -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:pathData="M10.7,10.7L43.3,43.3"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:pathData="M43.3,10.7L10.7,43.3"/>
+        <!-- Small branches on vertical -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.5"
+            android:pathData="M27,10L22,15M27,10L32,15"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.5"
+            android:pathData="M27,44L22,39M27,44L32,39"/>
+        <!-- Small branches on horizontal -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.5"
+            android:pathData="M10,27L15,22M10,27L15,32"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.5"
+            android:pathData="M44,27L39,22M44,27L39,32"/>
+    </group>
+</vector>
