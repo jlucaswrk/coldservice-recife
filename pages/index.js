@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Head from "next/head";
 import { getPersonalizedContent } from "@/lib/dtr";
 import { siteConfig, googleReviews } from "@/lib/content";
@@ -12,9 +13,13 @@ import ServiceAreas from "@/components/ServiceAreas";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import AtendimentoModal from "@/components/AtendimentoModal";
 
 export default function Home({ personalizedContent, keyword }) {
   const content = personalizedContent;
+  const [isAtendimentoOpen, setIsAtendimentoOpen] = useState(false);
+  const [isAtendimentoMinimized, setIsAtendimentoMinimized] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
 
   // Build canonical URL
   const canonicalUrl = keyword
@@ -112,7 +117,11 @@ export default function Home({ personalizedContent, keyword }) {
       <div className="min-h-screen bg-white">
         <Header />
         <main>
-          <Hero content={content} />
+          <Hero
+            content={content}
+            onOpenAtendimento={() => setIsAtendimentoOpen(true)}
+            onLocationUpdate={setUserLocation}
+          />
           <TrustBadges />
           <Services highlightedService={content.services?.highlightedService} />
           <HowItWorks />
@@ -123,6 +132,19 @@ export default function Home({ personalizedContent, keyword }) {
         </main>
         <Footer />
         <WhatsAppFloat />
+
+        {/* Modal de Atendimento Urgente */}
+        <AtendimentoModal
+          isOpen={isAtendimentoOpen}
+          isMinimized={isAtendimentoMinimized}
+          onClose={() => {
+            setIsAtendimentoOpen(false);
+            setIsAtendimentoMinimized(false);
+          }}
+          onMinimize={(minimized) => setIsAtendimentoMinimized(minimized)}
+          whatsappNumber={siteConfig.whatsappClean || "5581999999999"}
+          initialLocation={userLocation}
+        />
       </div>
     </>
   );
