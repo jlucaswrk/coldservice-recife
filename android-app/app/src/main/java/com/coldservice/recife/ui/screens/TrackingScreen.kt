@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -83,7 +85,7 @@ fun TrackingScreen(
             locationService.getHighAccuracyLocation(
                 targetAccuracy = 10f,
                 timeoutMs = 60000L
-            ).catch { e ->
+            ).catch { _ ->
                 // Erro de localização
             }.collect { update ->
                 locationUpdate = update
@@ -109,7 +111,7 @@ fun TrackingScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 },
                 actions = {
@@ -274,11 +276,12 @@ fun LocationStatusCard(
 }
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 fun TrackingMapCard(
     radarAngle: Float,
     pulseScale: Float,
     technicianOnline: Boolean,
-    customerLocation: android.location.Location?,
+    customerLocation: android.location.Location?, // Will be used for real map integration
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -454,9 +457,10 @@ fun TechnicianStatusCard(
     }
 }
 
+@Suppress("UNUSED_PARAMETER")
 @Composable
 fun WhatsAppButton(
-    customerName: String,
+    customerName: String, // Reserved for future use
     onClick: () -> Unit
 ) {
     Button(
@@ -470,7 +474,7 @@ fun WhatsAppButton(
         shape = RoundedCornerShape(16.dp)
     ) {
         Icon(
-            Icons.Default.Chat,
+            Icons.AutoMirrored.Filled.Chat,
             contentDescription = null,
             modifier = Modifier.size(24.dp)
         )
