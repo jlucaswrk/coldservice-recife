@@ -142,7 +142,7 @@ export default function Home({ personalizedContent, keyword }) {
             setIsAtendimentoMinimized(false);
           }}
           onMinimize={(minimized) => setIsAtendimentoMinimized(minimized)}
-          whatsappNumber={siteConfig.whatsappClean || "5581999999999"}
+          whatsappNumber={siteConfig.whatsappClean || "5581986804024"}
           initialLocation={userLocation}
         />
       </div>

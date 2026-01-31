@@ -56,7 +56,7 @@ export default function AtendimentoModal({
   isMinimized = false,
   onClose,
   onMinimize,
-  whatsappNumber = '5581999999999',
+  whatsappNumber = '5581986804024',
   initialLocation = null
 }) {
   const [step, setStep] = useState('identify'); // identify | tracking
