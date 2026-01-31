@@ -1,0 +1,55 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, feature/technician-location-app]
+    paths:
+      - 'technician-app/**'
+      - '.github/workflows/build-android.yml'
+  workflow_dispatch: # Permite rodar manualmente pelo GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Build Debug APK
+        working-directory: ./technician-app
+        run: gradle assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cold-service-technician-apk
+          path: technician-app/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      - name: Build Summary
+        run: |
+          echo "## Build Successful! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "O APK foi gerado e está disponível para download em **Artifacts**." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Como instalar:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Clique em **Artifacts** acima" >> $GITHUB_STEP_SUMMARY
+          echo "2. Baixe **cold-service-technician-apk**" >> $GITHUB_STEP_SUMMARY
+          echo "3. Transfira o APK para o celular Android" >> $GITHUB_STEP_SUMMARY
+          echo "4. Instale (pode precisar habilitar 'fontes desconhecidas')" >> $GITHUB_STEP_SUMMARY
