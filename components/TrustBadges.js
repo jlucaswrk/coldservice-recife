@@ -113,8 +113,35 @@ export default function TrustBadges() {
             <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#6bb8e8]/30 to-[#6bb8e8]/50" />
           </div>
 
-          {/* Brand logos - Industrial conveyor belt style */}
-          <div className="relative overflow-hidden py-6">
+          {/* Brand logos - Grid on mobile, Marquee on desktop */}
+
+          {/* Mobile: Grid 2 columns */}
+          <div className="md:hidden py-6">
+            <div className="grid grid-cols-2 gap-3">
+              {brands.map((brand) => (
+                <div
+                  key={brand.id}
+                  className="group relative"
+                >
+                  {/* Brand card */}
+                  <div className="relative px-4 py-3 bg-gradient-to-b from-[#f8f9fa] to-white rounded-xl border border-[#e8f4fc] transition-all duration-300 text-center">
+                    {/* Technical corner marks */}
+                    <div className="absolute top-1 left-1 w-2 h-2 border-l border-t border-[#6bb8e8]/30" />
+                    <div className="absolute top-1 right-1 w-2 h-2 border-r border-t border-[#6bb8e8]/30" />
+                    <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b border-[#6bb8e8]/30" />
+                    <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-[#6bb8e8]/30" />
+
+                    <span className="font-mono text-base font-bold text-[#131d35]/70 tracking-tight">
+                      {brand.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: Scrolling marquee */}
+          <div className="hidden md:block relative overflow-hidden py-6">
             {/* Gradient masks for infinite scroll effect */}
             <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
@@ -122,7 +149,7 @@ export default function TrustBadges() {
             {/* Scrolling container */}
             <div className="flex animate-scroll-brands">
               {/* First set */}
-              <div className="flex items-center gap-8 md:gap-12 px-4">
+              <div className="flex items-center gap-12 px-4">
                 {brands.map((brand) => (
                   <div
                     key={brand.id}
@@ -136,7 +163,7 @@ export default function TrustBadges() {
                       <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b border-[#6bb8e8]/30" />
                       <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-[#6bb8e8]/30" />
 
-                      <span className="font-mono text-lg md:text-xl font-bold text-[#131d35]/70 group-hover:text-[#131d35] tracking-tight transition-colors whitespace-nowrap">
+                      <span className="font-mono text-xl font-bold text-[#131d35]/70 group-hover:text-[#131d35] tracking-tight transition-colors whitespace-nowrap">
                         {brand.name}
                       </span>
                     </div>
@@ -145,7 +172,7 @@ export default function TrustBadges() {
               </div>
 
               {/* Duplicate set for seamless loop */}
-              <div className="flex items-center gap-8 md:gap-12 px-4">
+              <div className="flex items-center gap-12 px-4">
                 {brands.map((brand) => (
                   <div
                     key={`dup-${brand.id}`}
@@ -157,7 +184,7 @@ export default function TrustBadges() {
                       <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b border-[#6bb8e8]/30" />
                       <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-[#6bb8e8]/30" />
 
-                      <span className="font-mono text-lg md:text-xl font-bold text-[#131d35]/70 group-hover:text-[#131d35] tracking-tight transition-colors whitespace-nowrap">
+                      <span className="font-mono text-xl font-bold text-[#131d35]/70 group-hover:text-[#131d35] tracking-tight transition-colors whitespace-nowrap">
                         {brand.name}
                       </span>
                     </div>
