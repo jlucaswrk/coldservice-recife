@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
  * AtendimentoModal - Sistema de Atendimento Urgente
- * Com geolocalização web otimizada para máxima precisão
+ * Mobile-first design com 100dvh para evitar cortes do navegador
  */
 
 // Haversine formula
@@ -30,7 +30,7 @@ function estimateArrival(distanceKm) {
   return `~${Math.round(minutes / 60)}h`;
 }
 
-// Bairros para mapa
+// Bairros para mapa - Coordenadas de Recife
 const NEIGHBORHOODS = [
   { name: "Boa Viagem", lat: -8.1234, lng: -34.9012, mapX: 75, mapY: 85 },
   { name: "Casa Forte", lat: -8.0345, lng: -34.9123, mapX: 55, mapY: 35 },
@@ -39,6 +39,7 @@ const NEIGHBORHOODS = [
   { name: "Graças", lat: -8.0389, lng: -34.9034, mapX: 70, mapY: 38 },
   { name: "Madalena", lat: -8.0567, lng: -34.9089, mapX: 68, mapY: 52 },
   { name: "Imbiribeira", lat: -8.1089, lng: -34.9156, mapX: 60, mapY: 78 },
+  { name: "Centro", lat: -8.0476, lng: -34.8770, mapX: 90, mapY: 55 },
 ];
 
 function findNearest(lat, lng) {
@@ -167,8 +168,8 @@ export default function AtendimentoModal({
             setCustomerLocation({
               latitude: -8.0476,
               longitude: -34.8770,
-              mapX: 85,
-              mapY: 50,
+              mapX: fallbackNearest.mapX,
+              mapY: fallbackNearest.mapY,
               isApproximate: true
             });
             setNeighborhoodName(fallbackNearest.name);
@@ -293,49 +294,47 @@ export default function AtendimentoModal({
 
   if (!isOpen) return null;
 
-  // Versão minimizada - maior e mais visível
+  // Versão minimizada
   if (isMinimized) {
     return (
       <div
         className="fixed bottom-24 right-4 z-[100] cursor-pointer"
         onClick={() => setMinimized(false)}
       >
-        <div className={`border-2 rounded-2xl p-5 shadow-2xl min-w-[260px] ${
+        <div className={`border-2 rounded-2xl p-4 shadow-2xl min-w-[240px] ${
           technicianLocation?.online
             ? 'bg-[#0d1526] border-[#25d366]'
             : 'bg-[#0d1526] border-[#f59e0b]'
         }`}>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <div className={`w-14 h-14 rounded-xl flex items-center justify-center border-2 ${
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center border-2 ${
                 technicianLocation?.online
                   ? 'bg-[#25d366]/10 border-[#25d366]'
                   : 'bg-[#f59e0b]/10 border-[#f59e0b]'
               }`}>
-                <svg className={`w-7 h-7 ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className={`w-6 h-6 ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
               {technicianLocation?.online && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#25d366] rounded-full border-2 border-[#0d1526] animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#25d366] rounded-full border-2 border-[#0d1526] animate-pulse" />
               )}
             </div>
-            <div className="flex-1">
-              <p className={`text-lg font-bold ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`}>
+            <div className="flex-1 min-w-0">
+              <p className={`text-base font-bold truncate ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`}>
                 {technicianLocation?.online ? 'A CAMINHO!' : 'AGUARDANDO'}
               </p>
               {distance !== null && technicianLocation?.online ? (
-                <p className="text-white text-base font-medium">
+                <p className="text-white text-sm font-medium">
                   {formatDistance(distance)} - {estimateArrival(distance)}
                 </p>
               ) : (
-                <p className="text-white/60 text-sm">
-                  Toque para ver detalhes
-                </p>
+                <p className="text-white/60 text-xs">Toque para ver</p>
               )}
             </div>
-            <svg className="w-6 h-6 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-white/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
             </svg>
           </div>
@@ -345,49 +344,47 @@ export default function AtendimentoModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#0a0f1a]/90 backdrop-blur-sm"
         onClick={step === 'tracking' ? () => setMinimized(true) : handleClose}
       />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-md">
-        <div className="bg-[#0d1526] border border-[#243556] rounded-xl overflow-hidden shadow-2xl">
+      {/* Modal - Mobile-first com dvh */}
+      <div className="relative w-full sm:max-w-md max-h-[100dvh] sm:max-h-[90vh] overflow-hidden">
+        <div className="bg-[#0d1526] sm:rounded-xl overflow-hidden shadow-2xl flex flex-col max-h-[100dvh] sm:max-h-[90vh]">
 
-          {/* Header - mais visível e legível */}
-          <div className="px-5 py-5 border-b border-[#243556] bg-[#1a2744]/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-white font-black text-xl">
-                  {step === 'identify' ? 'Atendimento Urgente' : (
-                    neighborhoodName ? `Urgente para ${neighborhoodName}` : 'Acompanhamento'
-                  )}
+          {/* Header - Compacto */}
+          <div className="flex-shrink-0 px-4 py-3 border-b border-[#243556] bg-[#1a2744]/50">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-white font-bold text-lg truncate">
+                  {step === 'identify' ? 'Atendimento Urgente' : `Urgente - ${neighborhoodName || 'Recife'}`}
                 </h2>
-                <p className="text-white/60 text-base mt-1">
-                  {step === 'identify' ? 'Veja onde o técnico está' : `Olá, ${name}! Técnico a caminho.`}
+                <p className="text-white/60 text-sm truncate">
+                  {step === 'identify' ? 'Acompanhe o técnico em tempo real' : `Olá, ${name}!`}
                 </p>
               </div>
               <button
                 onClick={handleClose}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#243556] hover:bg-[#34496d] transition-colors"
+                className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full bg-[#243556] hover:bg-[#34496d] transition-colors"
               >
-                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="p-5">
+          {/* Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4">
             {/* Step 1: Identificação */}
             {step === 'identify' && (
-              <div className="space-y-5">
-                {/* Input de nome - maior e mais claro */}
+              <div className="space-y-4">
+                {/* Input de nome */}
                 <div>
-                  <label className="block text-base text-white mb-3 font-medium">
+                  <label className="block text-sm text-white mb-2 font-medium">
                     Qual é o seu nome?
                   </label>
                   <input
@@ -395,168 +392,123 @@ export default function AtendimentoModal({
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Digite aqui seu nome"
-                    className="w-full px-4 py-4 bg-[#1a2744] border-2 border-[#243556] rounded-xl text-white text-lg placeholder-[#9dd1f1]/40 focus:outline-none focus:border-[#6bb8e8] transition-colors"
+                    placeholder="Digite seu nome"
+                    className="w-full px-4 py-3 bg-[#1a2744] border-2 border-[#243556] rounded-xl text-white text-base placeholder-[#9dd1f1]/40 focus:outline-none focus:border-[#6bb8e8] transition-colors"
                     onKeyDown={(e) => e.key === 'Enter' && handleStartTracking()}
                   />
                 </div>
 
-                {/* Informações sobre o sistema - mais legível */}
-                <div className="bg-[#1a2744]/50 border border-[#243556] rounded-xl p-5 space-y-4">
-                  <p className="text-white text-base font-bold">
-                    Como funciona:
-                  </p>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-[#6bb8e8] flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-sm font-bold">1</span>
+                {/* Como funciona - Compacto */}
+                <div className="bg-[#1a2744]/50 border border-[#243556] rounded-xl p-4">
+                  <p className="text-white text-sm font-bold mb-3">Como funciona:</p>
+                  <div className="space-y-2">
+                    {[
+                      'Digite seu nome e clique no botão',
+                      'O técnico liga a localização no app',
+                      'Você vê no mapa onde ele está'
+                    ].map((text, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-[#6bb8e8] flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-bold">{i + 1}</span>
+                        </div>
+                        <p className="text-white/80 text-sm">{text}</p>
                       </div>
-                      <p className="text-white/90 text-base pt-1">
-                        Você coloca seu nome e clica no botão verde
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-[#6bb8e8] flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-sm font-bold">2</span>
-                      </div>
-                      <p className="text-white/90 text-base pt-1">
-                        O técnico abre o aplicativo e liga a localização
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-[#6bb8e8] flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-sm font-bold">3</span>
-                      </div>
-                      <p className="text-white/90 text-base pt-1">
-                        Você vê no mapa onde ele está e quando chega
-                      </p>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Status de localização - ULTRA PRECISO estilo Uber */}
+                {/* Status de localização */}
                 {(customerLocation || isRefiningLocation) && (
-                  <div className={`rounded-xl p-4 border ${
+                  <div className={`rounded-xl p-3 border ${
                     isRefiningLocation
                       ? 'bg-[#6bb8e8]/10 border-[#6bb8e8]/30'
                       : customerLocation?.isApproximate
                         ? 'bg-[#f59e0b]/10 border-[#f59e0b]/30'
-                        : locationAccuracy && locationAccuracy <= 10
-                          ? 'bg-[#25d366]/10 border-[#25d366]/30'
-                          : 'bg-[#25d366]/10 border-[#25d366]/30'
+                        : 'bg-[#25d366]/10 border-[#25d366]/30'
                   }`}>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       {isRefiningLocation ? (
                         <>
-                          <div className="w-6 h-6 border-2 border-[#6bb8e8] border-t-transparent rounded-full animate-spin" />
-                          <div className="flex-1">
-                            <span className="text-[#6bb8e8] text-base font-bold">
-                              Refinando localização...
-                            </span>
-                            {locationAccuracy && (
-                              <p className="text-[#6bb8e8]/70 text-sm mt-0.5">
-                                Precisão atual: ±{locationAccuracy}m
-                                {locationAccuracy > 15 && ' (aguarde...)'}
-                                {locationAccuracy <= 15 && locationAccuracy > 10 && ' (quase lá!)'}
-                                {locationAccuracy <= 10 && ' (excelente!)'}
-                              </p>
-                            )}
-                          </div>
+                          <div className="w-5 h-5 border-2 border-[#6bb8e8] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                          <span className="text-[#6bb8e8] text-sm font-medium">
+                            Obtendo localização... {locationAccuracy && `(±${locationAccuracy}m)`}
+                          </span>
                         </>
                       ) : customerLocation?.isApproximate ? (
                         <>
-                          <svg className="w-6 h-6 text-[#f59e0b]" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-5 h-5 text-[#f59e0b] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
-                          <span className="text-[#f59e0b] text-base font-medium">
-                            Localização aproximada (via IP)
-                          </span>
+                          <span className="text-[#f59e0b] text-sm">Localização aproximada</span>
                         </>
                       ) : (
                         <>
-                          <svg className="w-6 h-6 text-[#25d366]" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-5 h-5 text-[#25d366] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
-                          <div className="flex-1">
-                            <span className="text-[#25d366] text-base font-bold">
-                              Localização precisa ✓
-                            </span>
-                            {locationAccuracy && (
-                              <p className="text-[#25d366]/70 text-sm">
-                                Precisão: ±{locationAccuracy}m
-                                {locationAccuracy <= 5 && ' 🎯'}
-                                {locationAccuracy > 5 && locationAccuracy <= 10 && ' (GPS)'}
-                              </p>
-                            )}
-                          </div>
+                          <span className="text-[#25d366] text-sm font-medium">
+                            Localização precisa {locationAccuracy && `(±${locationAccuracy}m)`}
+                          </span>
                         </>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Botão iniciar - WCAG AA Compliant */}
+                {/* Botão iniciar */}
                 <button
                   onClick={handleStartTracking}
                   disabled={!name.trim()}
-                  className="w-full py-5 bg-[#128c4a] hover:bg-[#0d6e3a] disabled:bg-[#3d4a5c] disabled:text-[#9db5c7] text-white text-xl font-bold rounded-xl transition-colors disabled:cursor-not-allowed shadow-lg"
+                  className="w-full py-4 bg-[#128c4a] hover:bg-[#0d6e3a] disabled:bg-[#3d4a5c] disabled:text-[#9db5c7] text-white text-lg font-bold rounded-xl transition-colors disabled:cursor-not-allowed"
                 >
-                  {name.trim() ? 'INICIAR AGORA' : 'Digite seu nome acima'}
+                  {name.trim() ? 'INICIAR AGORA' : 'Digite seu nome'}
                 </button>
               </div>
             )}
 
             {/* Step 2: Tracking */}
             {step === 'tracking' && (
-              <div className="space-y-4">
-                {/* Mensagem personalizada com localização */}
+              <div className="space-y-3">
+                {/* Card de localização do cliente - CORRIGIDO */}
                 {neighborhoodName && (
-                  <div className="bg-gradient-to-r from-[#ff6b35]/10 to-[#f59e0b]/10 border border-[#ff6b35]/30 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[#ff6b35] text-lg animate-pulse">🚨</span>
-                      <span className="text-sm font-bold text-[#ff6b35] uppercase tracking-wider">
-                        Atendimento Urgente
-                      </span>
+                  <div className="bg-gradient-to-r from-[#ff6b35]/10 to-[#f59e0b]/10 border border-[#ff6b35]/30 rounded-xl p-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[#ff6b35] animate-pulse">🚨</span>
+                      <span className="text-sm font-bold text-[#ff6b35]">URGENTE</span>
                     </div>
-                    <p className="text-base text-white">
-                      {name}, estamos indo até você em{' '}
-                      <span className="font-bold text-[#6bb8e8]">{neighborhoodName}</span>
-                    </p>
-                    <p className="text-xs text-[#9dd1f1]/60 mt-1">
-                      Acompanhe a localização do técnico em tempo real
+                    <p className="text-sm text-white mt-1">
+                      Estamos indo até você em <span className="font-bold text-[#6bb8e8]">{neighborhoodName}</span>
                     </p>
                   </div>
                 )}
 
-                {/* Status do técnico - MUITO mais visível */}
-                <div className={`p-4 rounded-xl border-2 ${
+                {/* Status do técnico */}
+                <div className={`p-3 rounded-xl border-2 ${
                   technicianLocation?.online
                     ? 'bg-[#25d366]/10 border-[#25d366]'
                     : 'bg-[#f59e0b]/10 border-[#f59e0b]'
                 }`}>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full ${
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${
                       technicianLocation?.online ? 'bg-[#25d366]' : 'bg-[#f59e0b] animate-pulse'
                     }`} />
-                    <span className={`text-lg font-bold ${
+                    <span className={`text-base font-bold ${
                       technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'
                     }`}>
-                      {technicianLocation?.online
-                        ? 'TÉCNICO A CAMINHO!'
-                        : 'AGUARDANDO O TÉCNICO'}
+                      {technicianLocation?.online ? 'TÉCNICO A CAMINHO!' : 'AGUARDANDO TÉCNICO'}
                     </span>
                   </div>
-                  <p className={`mt-2 text-base ${
+                  <p className={`mt-1 text-sm ${
                     technicianLocation?.online ? 'text-[#25d366]/80' : 'text-[#f59e0b]/80'
                   }`}>
                     {technicianLocation?.online
-                      ? 'Você pode ver a localização dele no mapa abaixo'
-                      : 'O técnico precisa abrir o app e ligar a localização'}
+                      ? 'Acompanhe a localização no mapa'
+                      : 'O técnico precisa ligar o app'}
                   </p>
                 </div>
 
-                {/* Mapa */}
-                <div className="relative h-44 rounded-lg bg-[#0a0f1a] border border-[#243556] overflow-hidden">
+                {/* Mapa - Altura fixa */}
+                <div className="relative h-36 rounded-lg bg-[#0a0f1a] border border-[#243556] overflow-hidden">
                   {/* Grid */}
                   <div className="absolute inset-0 opacity-10" style={{
                     backgroundImage: 'linear-gradient(#9dd1f1 1px, transparent 1px), linear-gradient(90deg, #9dd1f1 1px, transparent 1px)',
@@ -584,7 +536,7 @@ export default function AtendimentoModal({
                     />
                   </svg>
 
-                  {/* Customer marker */}
+                  {/* Customer marker - USA COORDENADAS DO CLIENTE */}
                   {customerLocation && (
                     <div
                       className="absolute z-20"
@@ -644,9 +596,7 @@ export default function AtendimentoModal({
                   <div className="absolute bottom-2 left-2 flex items-center gap-3 bg-[#0a0f1a]/80 rounded px-2 py-1">
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-[#ff6b35] rounded-full" />
-                      <span className="text-[9px] font-mono text-[#9dd1f1]/60">
-                        {neighborhoodName || 'Você'}
-                      </span>
+                      <span className="text-[9px] font-mono text-[#9dd1f1]/60">Você</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-[#25d366] rounded-full" />
@@ -655,43 +605,43 @@ export default function AtendimentoModal({
                   </div>
                 </div>
 
-                {/* Stats - Maior e mais claro */}
+                {/* Stats */}
                 {technicianLocation?.online && distance !== null && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-[#1a2744] rounded-xl p-4 text-center border-2 border-[#6bb8e8]/30">
-                      <p className="text-3xl font-black text-[#6bb8e8]">{formatDistance(distance)}</p>
-                      <p className="text-sm text-white/70 font-medium mt-1">de distância</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-[#1a2744] rounded-xl p-3 text-center border border-[#6bb8e8]/30">
+                      <p className="text-2xl font-black text-[#6bb8e8]">{formatDistance(distance)}</p>
+                      <p className="text-xs text-white/70">de distância</p>
                     </div>
-                    <div className="bg-[#1a2744] rounded-xl p-4 text-center border-2 border-[#25d366]/30">
-                      <p className="text-3xl font-black text-[#25d366]">{estimateArrival(distance)}</p>
-                      <p className="text-sm text-white/70 font-medium mt-1">para chegar</p>
+                    <div className="bg-[#1a2744] rounded-xl p-3 text-center border border-[#25d366]/30">
+                      <p className="text-2xl font-black text-[#25d366]">{estimateArrival(distance)}</p>
+                      <p className="text-xs text-white/70">para chegar</p>
                     </div>
                   </div>
                 )}
 
-                {/* Dica quando técnico não está online */}
+                {/* Dica quando técnico offline */}
                 {!technicianLocation?.online && (
-                  <div className="bg-[#1a2744]/50 rounded-xl p-4 border border-[#243556]">
-                    <p className="text-white/80 text-base text-center">
-                      Você pode ligar para o técnico pelo WhatsApp enquanto aguarda
+                  <div className="bg-[#1a2744]/50 rounded-xl p-3 border border-[#243556]">
+                    <p className="text-white/80 text-sm text-center">
+                      Fale com o técnico pelo WhatsApp
                     </p>
                   </div>
                 )}
 
-                {/* WhatsApp button - WCAG AA Compliant */}
+                {/* WhatsApp button */}
                 <button
                   onClick={openWhatsApp}
-                  className="w-full py-5 bg-[#128c4a] hover:bg-[#0d6e3a] text-white text-xl font-bold rounded-xl transition-colors flex items-center justify-center gap-3 shadow-lg"
+                  className="w-full py-4 bg-[#128c4a] hover:bg-[#0d6e3a] text-white text-lg font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
-                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                   </svg>
-                  FALAR NO WHATSAPP
+                  WHATSAPP
                 </button>
 
-                {/* Minimize hint - Mais claro */}
-                <p className="text-center text-white/40 text-sm">
-                  Toque fora desta janela para minimizar
+                {/* Minimize hint */}
+                <p className="text-center text-white/40 text-xs">
+                  Toque fora para minimizar
                 </p>
               </div>
             )}

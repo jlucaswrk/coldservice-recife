@@ -124,14 +124,20 @@ export default function TrustBadges() {
                   className="group relative"
                 >
                   {/* Brand card */}
-                  <div className="relative px-4 py-3 bg-gradient-to-b from-[#f8f9fa] to-white rounded-xl border border-[#e8f4fc] transition-all duration-300 text-center">
-                    {/* Technical corner marks */}
-                    <div className="absolute top-1 left-1 w-2 h-2 border-l border-t border-[#6bb8e8]/30" />
-                    <div className="absolute top-1 right-1 w-2 h-2 border-r border-t border-[#6bb8e8]/30" />
-                    <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b border-[#6bb8e8]/30" />
-                    <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-[#6bb8e8]/30" />
+                  <div
+                    className="relative px-4 py-4 bg-gradient-to-b from-[#f8f9fa] to-white rounded-xl border-2 transition-all duration-300 text-center"
+                    style={{ borderColor: `${brand.color}30` }}
+                  >
+                    {/* Technical corner marks with brand color */}
+                    <div className="absolute top-1 left-1 w-2 h-2 border-l border-t" style={{ borderColor: `${brand.color}50` }} />
+                    <div className="absolute top-1 right-1 w-2 h-2 border-r border-t" style={{ borderColor: `${brand.color}50` }} />
+                    <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b" style={{ borderColor: `${brand.color}50` }} />
+                    <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b" style={{ borderColor: `${brand.color}50` }} />
 
-                    <span className="font-mono text-base font-bold text-[#131d35]/70 tracking-tight">
+                    <span
+                      className="font-bold text-lg tracking-tight"
+                      style={{ color: brand.color }}
+                    >
                       {brand.name}
                     </span>
                   </div>
@@ -156,14 +162,20 @@ export default function TrustBadges() {
                     className="group relative flex-shrink-0"
                   >
                     {/* Brand card */}
-                    <div className="relative px-6 py-4 bg-gradient-to-b from-[#f8f9fa] to-white rounded-xl border border-[#e8f4fc] group-hover:border-[#6bb8e8]/30 group-hover:bg-gradient-to-b group-hover:from-[#e8f4fc] group-hover:to-white transition-all duration-300">
+                    <div
+                      className="relative px-8 py-5 bg-gradient-to-b from-[#f8f9fa] to-white rounded-xl border-2 group-hover:shadow-lg transition-all duration-300"
+                      style={{ borderColor: `${brand.color}30` }}
+                    >
                       {/* Technical corner marks */}
-                      <div className="absolute top-1 left-1 w-2 h-2 border-l border-t border-[#6bb8e8]/30" />
-                      <div className="absolute top-1 right-1 w-2 h-2 border-r border-t border-[#6bb8e8]/30" />
-                      <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b border-[#6bb8e8]/30" />
-                      <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-[#6bb8e8]/30" />
+                      <div className="absolute top-1 left-1 w-2 h-2 border-l border-t" style={{ borderColor: `${brand.color}50` }} />
+                      <div className="absolute top-1 right-1 w-2 h-2 border-r border-t" style={{ borderColor: `${brand.color}50` }} />
+                      <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b" style={{ borderColor: `${brand.color}50` }} />
+                      <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b" style={{ borderColor: `${brand.color}50` }} />
 
-                      <span className="font-mono text-xl font-bold text-[#131d35]/70 group-hover:text-[#131d35] tracking-tight transition-colors whitespace-nowrap">
+                      <span
+                        className="text-2xl font-bold tracking-tight transition-colors whitespace-nowrap"
+                        style={{ color: brand.color }}
+                      >
                         {brand.name}
                       </span>
                     </div>
@@ -178,13 +190,19 @@ export default function TrustBadges() {
                     key={`dup-${brand.id}`}
                     className="group relative flex-shrink-0"
                   >
-                    <div className="relative px-6 py-4 bg-gradient-to-b from-[#f8f9fa] to-white rounded-xl border border-[#e8f4fc] group-hover:border-[#6bb8e8]/30 group-hover:bg-gradient-to-b group-hover:from-[#e8f4fc] group-hover:to-white transition-all duration-300">
-                      <div className="absolute top-1 left-1 w-2 h-2 border-l border-t border-[#6bb8e8]/30" />
-                      <div className="absolute top-1 right-1 w-2 h-2 border-r border-t border-[#6bb8e8]/30" />
-                      <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b border-[#6bb8e8]/30" />
-                      <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-[#6bb8e8]/30" />
+                    <div
+                      className="relative px-8 py-5 bg-gradient-to-b from-[#f8f9fa] to-white rounded-xl border-2 group-hover:shadow-lg transition-all duration-300"
+                      style={{ borderColor: `${brand.color}30` }}
+                    >
+                      <div className="absolute top-1 left-1 w-2 h-2 border-l border-t" style={{ borderColor: `${brand.color}50` }} />
+                      <div className="absolute top-1 right-1 w-2 h-2 border-r border-t" style={{ borderColor: `${brand.color}50` }} />
+                      <div className="absolute bottom-1 left-1 w-2 h-2 border-l border-b" style={{ borderColor: `${brand.color}50` }} />
+                      <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b" style={{ borderColor: `${brand.color}50` }} />
 
-                      <span className="font-mono text-xl font-bold text-[#131d35]/70 group-hover:text-[#131d35] tracking-tight transition-colors whitespace-nowrap">
+                      <span
+                        className="text-2xl font-bold tracking-tight transition-colors whitespace-nowrap"
+                        style={{ color: brand.color }}
+                      >
                         {brand.name}
                       </span>
                     </div>
