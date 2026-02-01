@@ -499,7 +499,7 @@ export default function Hero({ content, onOpenAtendimento, onLocationUpdate }) {
           </div>
 
           {/* Hero Visual - Operations Dashboard */}
-          <div className="relative hidden lg:block animate-slide-in-right">
+          <div className="relative animate-slide-in-right mt-8 lg:mt-0">
             <div className="relative">
               {/* Glow effect */}
               <div className="absolute -inset-4 bg-gradient-to-r from-[#6bb8e8]/20 to-[#ff6b35]/20 rounded-3xl blur-2xl" />
@@ -512,25 +512,25 @@ export default function Hero({ content, onOpenAtendimento, onLocationUpdate }) {
                 }} />
 
                 {/* Header Bar */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-[#243556] bg-[#0d1526]/80">
+                <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-[#243556] bg-[#0d1526]/80">
                   <div className="flex items-center gap-2">
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 rounded-full bg-[#ff6b35]" />
-                      <div className="w-2 h-2 rounded-full bg-[#f59e0b]" />
-                      <div className="w-2 h-2 rounded-full bg-[#25d366]" />
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#ff6b35]" />
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#f59e0b]" />
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#25d366]" />
                     </div>
-                    <span className="text-[10px] font-mono text-[#9dd1f1]/60 uppercase tracking-widest">Central de Operações</span>
+                    <span className="text-[8px] sm:text-[10px] font-mono text-[#9dd1f1]/60 uppercase tracking-widest">Central de Operações</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1 sm:gap-1.5">
                     <div className="w-1.5 h-1.5 bg-[#25d366] rounded-full animate-pulse" />
-                    <span className="text-[10px] font-mono text-[#25d366]">LIVE</span>
+                    <span className="text-[8px] sm:text-[10px] font-mono text-[#25d366]">LIVE</span>
                   </div>
                 </div>
 
                 {/* Map Section */}
-                <div className="relative p-4">
+                <div className="relative p-3 sm:p-4">
                   {/* Stylized Recife Map */}
-                  <div className="relative h-48 rounded-lg bg-[#0d1526] border border-[#243556]/50 overflow-hidden">
+                  <div className="relative h-36 sm:h-48 rounded-lg bg-[#0d1526] border border-[#243556]/50 overflow-hidden">
                     {/* Grid overlay */}
                     <div className="absolute inset-0 opacity-20" style={{
                       backgroundImage: 'linear-gradient(#9dd1f1 1px, transparent 1px), linear-gradient(90deg, #9dd1f1 1px, transparent 1px)',
@@ -636,19 +636,21 @@ export default function Hero({ content, onOpenAtendimento, onLocationUpdate }) {
                     {(locationStatus === "ip-found" || locationStatus === "precise-found" || locationStatus === "asking-permission") && neighborhood && onOpenAtendimento && (
                       <button
                         onClick={onOpenAtendimento}
-                        className="group block w-full bg-gradient-to-r from-[#c54a1c] to-[#a83d15] hover:from-[#a83d15] hover:to-[#8f3412] rounded-xl p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-[#c54a1c]/20"
+                        className="group block w-full bg-gradient-to-r from-[#c54a1c] to-[#a83d15] hover:from-[#a83d15] hover:to-[#8f3412] rounded-xl p-2.5 sm:p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-[#c54a1c]/20"
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                              <span className="text-xl">🚨</span>
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <span className="text-base sm:text-xl">🚨</span>
                             </div>
                             <div className="text-left">
-                              <p className="text-white font-bold text-sm">Atendimento Urgente</p>
-                              <p className="text-white/80 text-xs">Teste nosso novo sistema de rastreamento</p>
+                              <p className="text-white font-bold text-xs sm:text-sm">
+                                Atendimento Urgente{neighborhood ? ` para ${neighborhood}` : ''}
+                              </p>
+                              <p className="text-white/80 text-[10px] sm:text-xs">Acompanhe o técnico em tempo real</p>
                             </div>
                           </div>
-                          <svg className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white group-hover:translate-x-1 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </div>
@@ -694,8 +696,8 @@ export default function Hero({ content, onOpenAtendimento, onLocationUpdate }) {
                 </div>
               </div>
 
-              {/* Rotating Tips */}
-              <div className="mt-4">
+              {/* Rotating Tips - Oculto no mobile */}
+              <div className="mt-4 hidden lg:block">
                 <div className="bg-[#1a2744]/60 backdrop-blur-sm rounded-xl px-4 py-3 border border-[#243556]/50">
                   <div className="flex items-center gap-3">
                     {/* Lightbulb icon */}
