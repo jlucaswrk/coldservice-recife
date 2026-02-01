@@ -269,11 +269,15 @@ export default function Hero({ content, onOpenAtendimento, onLocationUpdate }) {
   }, []);
 
   // Notificar parent sobre mudanças de localização
+  // Inclui o neighborhood no objeto para o Modal usar
   useEffect(() => {
     if (userLocation && onLocationUpdate) {
-      onLocationUpdate(userLocation);
+      onLocationUpdate({
+        ...userLocation,
+        neighborhood: neighborhood
+      });
     }
-  }, [userLocation, onLocationUpdate]);
+  }, [userLocation, neighborhood, onLocationUpdate]);
 
   // Browser Geolocation - pede permissão após ter o IP (apenas se ainda não pediu)
   useEffect(() => {
