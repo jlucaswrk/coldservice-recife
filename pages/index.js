@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import { getPersonalizedContent } from "@/lib/dtr";
 import { siteConfig, googleReviews } from "@/lib/content";
@@ -20,6 +20,17 @@ export default function Home({ personalizedContent, keyword }) {
   const [isAtendimentoOpen, setIsAtendimentoOpen] = useState(false);
   const [isAtendimentoMinimized, setIsAtendimentoMinimized] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
+
+  // Ouvir evento para reabrir modal do widget flutuante
+  useEffect(() => {
+    const handleOpenAtendimento = () => {
+      setIsAtendimentoOpen(true);
+      setIsAtendimentoMinimized(false);
+    };
+
+    window.addEventListener('openAtendimento', handleOpenAtendimento);
+    return () => window.removeEventListener('openAtendimento', handleOpenAtendimento);
+  }, []);
 
   // Build canonical URL
   const canonicalUrl = keyword

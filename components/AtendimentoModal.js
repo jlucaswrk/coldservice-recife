@@ -3,7 +3,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 /**
  * AtendimentoModal - Sistema de Atendimento Urgente
  * Mobile-first design com 100dvh para evitar cortes do navegador
+ * Persistência de sessão em localStorage
  */
+
+const STORAGE_KEY = 'coldservice_atendimento';
 
 // Haversine formula
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -52,6 +55,44 @@ function findNearest(lat, lng) {
   return nearest;
 }
 
+// Helpers para localStorage
+function saveSession(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ...data,
+      timestamp: Date.now()
+    }));
+  } catch (e) {
+    console.error('Error saving session:', e);
+  }
+}
+
+function loadSession() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) return null;
+
+    const parsed = JSON.parse(data);
+    // Sessão expira em 2 horas
+    if (Date.now() - parsed.timestamp > 2 * 60 * 60 * 1000) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch (e) {
+    console.error('Error loading session:', e);
+    return null;
+  }
+}
+
+function clearSession() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {
+    console.error('Error clearing session:', e);
+  }
+}
+
 export default function AtendimentoModal({
   isOpen,
   isMinimized = false,
@@ -68,129 +109,63 @@ export default function AtendimentoModal({
   const [distance, setDistance] = useState(null);
   const [radarAngle, setRadarAngle] = useState(0);
   const [neighborhoodName, setNeighborhoodName] = useState(null);
-
-  const [locationAccuracy, setLocationAccuracy] = useState(null);
-  const [isRefiningLocation, setIsRefiningLocation] = useState(false);
+  const [hasActiveSession, setHasActiveSession] = useState(false);
 
   const inputRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const initializedRef = useRef(false);
 
   // Helper para minimizar/maximizar
   const setMinimized = (value) => {
     if (onMinimize) onMinimize(value);
   };
 
-  // Obter localização com alta precisão (Web API otimizada)
+  // Carregar sessão do localStorage na inicialização
   useEffect(() => {
-    if (!isOpen) return;
+    if (initializedRef.current) return;
+    initializedRef.current = true;
 
-    if (initialLocation) {
+    const saved = loadSession();
+    if (saved && saved.name && saved.sessionId) {
+      setName(saved.name);
+      setSessionId(saved.sessionId);
+      setStep('tracking');
+      setHasActiveSession(true);
+      if (saved.neighborhoodName) {
+        setNeighborhoodName(saved.neighborhoodName);
+      }
+      if (saved.customerLocation) {
+        setCustomerLocation(saved.customerLocation);
+      }
+    }
+  }, []);
+
+  // Usar localização do Hero quando disponível
+  useEffect(() => {
+    if (initialLocation && initialLocation.lat && initialLocation.lng) {
       const nearest = findNearest(initialLocation.lat, initialLocation.lng);
-      setCustomerLocation({
+      const newLocation = {
         latitude: initialLocation.lat,
         longitude: initialLocation.lng,
         mapX: nearest.mapX,
         mapY: nearest.mapY
-      });
+      };
+      setCustomerLocation(newLocation);
       setNeighborhoodName(nearest.name);
-      setLocationAccuracy(null);
-      setIsRefiningLocation(false);
-      return;
-    }
 
-    if (!navigator.geolocation) return;
-
-    let watchId = null;
-    let bestPosition = null;
-    let lastPositions = [];
-    const TARGET_ACCURACY = 10;
-    const GOOD_ENOUGH_ACCURACY = 15;
-    const MAX_TIME = 60000;
-    const MIN_STABLE_READINGS = 3;
-
-    setIsRefiningLocation(true);
-    setLocationAccuracy(null);
-
-    const isStable = () => {
-      if (lastPositions.length < MIN_STABLE_READINGS) return false;
-      const recentAccuracies = lastPositions.slice(-MIN_STABLE_READINGS).map(p => p.coords.accuracy);
-      const avgAccuracy = recentAccuracies.reduce((a, b) => a + b, 0) / recentAccuracies.length;
-      const variance = recentAccuracies.reduce((sum, acc) => sum + Math.pow(acc - avgAccuracy, 2), 0) / recentAccuracies.length;
-      return variance < 25 && avgAccuracy <= GOOD_ENOUGH_ACCURACY;
-    };
-
-    const updateLocation = (position, isFinal = false) => {
-      const nearest = findNearest(position.coords.latitude, position.coords.longitude);
-      setCustomerLocation({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy,
-        mapX: nearest.mapX,
-        mapY: nearest.mapY
-      });
-      setNeighborhoodName(nearest.name);
-      setLocationAccuracy(Math.round(position.coords.accuracy));
-      if (isFinal) setIsRefiningLocation(false);
-    };
-
-    watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        lastPositions.push(position);
-        if (!bestPosition || position.coords.accuracy < bestPosition.coords.accuracy) {
-          bestPosition = position;
-        }
-        updateLocation(bestPosition, false);
-        if (position.coords.accuracy <= TARGET_ACCURACY || isStable()) {
-          navigator.geolocation.clearWatch(watchId);
-          updateLocation(bestPosition, true);
-        }
-      },
-      () => {
-        if (watchId) navigator.geolocation.clearWatch(watchId);
-        setIsRefiningLocation(false);
-        fetch('https://ipapi.co/json/')
-          .then(res => res.json())
-          .then(data => {
-            if (data.latitude) {
-              const nearest = findNearest(data.latitude, data.longitude);
-              setCustomerLocation({
-                latitude: data.latitude,
-                longitude: data.longitude,
-                mapX: nearest.mapX,
-                mapY: nearest.mapY,
-                isApproximate: true
-              });
-              setNeighborhoodName(nearest.name);
-            }
-          })
-          .catch(() => {
-            const fallbackNearest = findNearest(-8.0476, -34.8770);
-            setCustomerLocation({
-              latitude: -8.0476,
-              longitude: -34.8770,
-              mapX: fallbackNearest.mapX,
-              mapY: fallbackNearest.mapY,
-              isApproximate: true
-            });
-            setNeighborhoodName(fallbackNearest.name);
+      // Salvar localização na sessão se houver
+      if (sessionId) {
+        const saved = loadSession();
+        if (saved) {
+          saveSession({
+            ...saved,
+            customerLocation: newLocation,
+            neighborhoodName: nearest.name
           });
-      },
-      { enableHighAccuracy: true, timeout: MAX_TIME, maximumAge: 0 }
-    );
-
-    const timeoutId = setTimeout(() => {
-      if (watchId) {
-        navigator.geolocation.clearWatch(watchId);
-        if (bestPosition) updateLocation(bestPosition, true);
-        else setIsRefiningLocation(false);
+        }
       }
-    }, MAX_TIME);
-
-    return () => {
-      if (watchId) navigator.geolocation.clearWatch(watchId);
-      clearTimeout(timeoutId);
-    };
-  }, [isOpen, initialLocation]);
+    }
+  }, [initialLocation, sessionId]);
 
   // Focus no input quando abre
   useEffect(() => {
@@ -265,8 +240,18 @@ export default function AtendimentoModal({
       const data = await res.json();
 
       if (data.success) {
-        setSessionId(data.session.sessionId);
+        const newSessionId = data.session.sessionId;
+        setSessionId(newSessionId);
         setStep('tracking');
+        setHasActiveSession(true);
+
+        // Salvar no localStorage
+        saveSession({
+          name: name.trim(),
+          sessionId: newSessionId,
+          customerLocation,
+          neighborhoodName
+        });
       }
     } catch (e) {
       console.error('Error creating session:', e);
@@ -282,15 +267,79 @@ export default function AtendimentoModal({
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
   }, [name, customerLocation, whatsappNumber]);
 
-  // Reset ao fechar
+  // Fechar modal - NÃO reinicia sessão, apenas minimiza se em tracking
   const handleClose = () => {
+    if (step === 'tracking' && hasActiveSession) {
+      // Se está em tracking, apenas minimiza
+      setMinimized(true);
+    } else {
+      // Se está em identify sem sessão ativa, fecha normalmente
+      onClose();
+    }
+  };
+
+  // Encerrar sessão completamente
+  const handleEndSession = () => {
+    clearSession();
     setStep('identify');
     setName('');
     setSessionId(null);
     setTechnicianLocation(null);
+    setHasActiveSession(false);
     setMinimized(false);
     onClose();
   };
+
+  // Mostrar widget flutuante quando há sessão ativa e modal fechado
+  if (!isOpen && hasActiveSession) {
+    return (
+      <div
+        className="fixed bottom-24 right-4 z-[100] cursor-pointer"
+        onClick={() => {
+          onMinimize?.(false);
+          // Reabrir modal
+          if (onClose) {
+            // Trigger para abrir - usamos um truque aqui
+            const event = new CustomEvent('openAtendimento');
+            window.dispatchEvent(event);
+          }
+        }}
+      >
+        <div className={`border-2 rounded-2xl p-4 shadow-2xl min-w-[240px] ${
+          technicianLocation?.online
+            ? 'bg-[#0d1526] border-[#25d366]'
+            : 'bg-[#0d1526] border-[#f59e0b]'
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center border-2 ${
+                technicianLocation?.online
+                  ? 'bg-[#25d366]/10 border-[#25d366]'
+                  : 'bg-[#f59e0b]/10 border-[#f59e0b]'
+              }`}>
+                <svg className={`w-6 h-6 ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              {technicianLocation?.online && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#25d366] rounded-full border-2 border-[#0d1526] animate-pulse" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-base font-bold truncate ${technicianLocation?.online ? 'text-[#25d366]' : 'text-[#f59e0b]'}`}>
+                {technicianLocation?.online ? 'A CAMINHO!' : 'AGUARDANDO'}
+              </p>
+              <p className="text-white/60 text-xs truncate">{name}</p>
+            </div>
+            <svg className="w-5 h-5 text-white/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isOpen) return null;
 
@@ -348,7 +397,7 @@ export default function AtendimentoModal({
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#0a0f1a]/90 backdrop-blur-sm"
-        onClick={step === 'tracking' ? () => setMinimized(true) : handleClose}
+        onClick={() => step === 'tracking' ? setMinimized(true) : handleClose()}
       />
 
       {/* Modal - Mobile-first com dvh */}
@@ -418,39 +467,15 @@ export default function AtendimentoModal({
                 </div>
 
                 {/* Status de localização */}
-                {(customerLocation || isRefiningLocation) && (
-                  <div className={`rounded-xl p-3 border ${
-                    isRefiningLocation
-                      ? 'bg-[#6bb8e8]/10 border-[#6bb8e8]/30'
-                      : customerLocation?.isApproximate
-                        ? 'bg-[#f59e0b]/10 border-[#f59e0b]/30'
-                        : 'bg-[#25d366]/10 border-[#25d366]/30'
-                  }`}>
+                {customerLocation && (
+                  <div className="rounded-xl p-3 border bg-[#25d366]/10 border-[#25d366]/30">
                     <div className="flex items-center gap-2">
-                      {isRefiningLocation ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-[#6bb8e8] border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                          <span className="text-[#6bb8e8] text-sm font-medium">
-                            Obtendo localização... {locationAccuracy && `(±${locationAccuracy}m)`}
-                          </span>
-                        </>
-                      ) : customerLocation?.isApproximate ? (
-                        <>
-                          <svg className="w-5 h-5 text-[#f59e0b] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-[#f59e0b] text-sm">Localização aproximada</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-5 h-5 text-[#25d366] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-[#25d366] text-sm font-medium">
-                            Localização precisa {locationAccuracy && `(±${locationAccuracy}m)`}
-                          </span>
-                        </>
-                      )}
+                      <svg className="w-5 h-5 text-[#25d366] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-[#25d366] text-sm font-medium">
+                        Localização: {neighborhoodName || 'Recife'}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -469,7 +494,7 @@ export default function AtendimentoModal({
             {/* Step 2: Tracking */}
             {step === 'tracking' && (
               <div className="space-y-3">
-                {/* Card de localização do cliente - CORRIGIDO */}
+                {/* Card de localização do cliente */}
                 {neighborhoodName && (
                   <div className="bg-gradient-to-r from-[#ff6b35]/10 to-[#f59e0b]/10 border border-[#ff6b35]/30 rounded-xl p-3">
                     <div className="flex items-center gap-2">
@@ -536,7 +561,7 @@ export default function AtendimentoModal({
                     />
                   </svg>
 
-                  {/* Customer marker - USA COORDENADAS DO CLIENTE */}
+                  {/* Customer marker */}
                   {customerLocation && (
                     <div
                       className="absolute z-20"
@@ -639,10 +664,13 @@ export default function AtendimentoModal({
                   WHATSAPP
                 </button>
 
-                {/* Minimize hint */}
-                <p className="text-center text-white/40 text-xs">
-                  Toque fora para minimizar
-                </p>
+                {/* Encerrar sessão */}
+                <button
+                  onClick={handleEndSession}
+                  className="w-full py-2 text-white/40 hover:text-white/60 text-sm transition-colors"
+                >
+                  Encerrar atendimento
+                </button>
               </div>
             )}
           </div>
