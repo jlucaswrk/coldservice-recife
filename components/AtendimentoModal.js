@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * AtendimentoModal - Sistema de Atendimento Urgente
  * Mobile-first design com 100dvh para evitar cortes do navegador
  * Persistência de sessão em localStorage
+ * USA A LOCALIZAÇÃO DO HERO (não obtém localização própria)
  */
 
 const STORAGE_KEY = 'coldservice_atendimento';
@@ -43,6 +44,12 @@ const NEIGHBORHOODS = [
   { name: "Madalena", lat: -8.0567, lng: -34.9089, mapX: 68, mapY: 52 },
   { name: "Imbiribeira", lat: -8.1089, lng: -34.9156, mapX: 60, mapY: 78 },
   { name: "Centro", lat: -8.0476, lng: -34.8770, mapX: 90, mapY: 55 },
+  { name: "Aflitos", lat: -8.0456, lng: -34.9089, mapX: 65, mapY: 42 },
+  { name: "Derby", lat: -8.0534, lng: -34.9001, mapX: 78, mapY: 45 },
+  { name: "Parnamirim", lat: -8.0312, lng: -34.9178, mapX: 50, mapY: 32 },
+  { name: "Tamarineira", lat: -8.0267, lng: -34.9123, mapX: 55, mapY: 28 },
+  { name: "Torre", lat: -8.0489, lng: -34.8923, mapX: 90, mapY: 44 },
+  { name: "Pina", lat: -8.0934, lng: -34.8834, mapX: 105, mapY: 72 },
 ];
 
 function findNearest(lat, lng) {
@@ -99,7 +106,7 @@ export default function AtendimentoModal({
   onClose,
   onMinimize,
   whatsappNumber = '5581986804024',
-  initialLocation = null
+  initialLocation = null  // LOCALIZAÇÃO VEM DO HERO - sempre usar esta!
 }) {
   const [step, setStep] = useState('identify'); // identify | tracking
   const [name, setName] = useState('');
@@ -120,7 +127,7 @@ export default function AtendimentoModal({
     if (onMinimize) onMinimize(value);
   };
 
-  // Carregar sessão do localStorage na inicialização
+  // Carregar apenas NOME e SESSIONID do localStorage (NÃO localização)
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
@@ -131,41 +138,54 @@ export default function AtendimentoModal({
       setSessionId(saved.sessionId);
       setStep('tracking');
       setHasActiveSession(true);
-      if (saved.neighborhoodName) {
-        setNeighborhoodName(saved.neighborhoodName);
-      }
-      if (saved.customerLocation) {
-        setCustomerLocation(saved.customerLocation);
-      }
+      // NÃO carrega localização do storage - vai usar do Hero
     }
   }, []);
 
-  // Usar localização do Hero quando disponível
+  // SEMPRE usar localização do Hero quando disponível
+  // Esta é a localização precisa do GPS obtida no Hero
   useEffect(() => {
     if (initialLocation && initialLocation.lat && initialLocation.lng) {
-      const nearest = findNearest(initialLocation.lat, initialLocation.lng);
+      // Usa mapX/mapY do Hero se disponível, senão calcula
+      let mapX = initialLocation.mapX;
+      let mapY = initialLocation.mapY;
+      let nearestName = neighborhoodName;
+
+      if (!mapX || !mapY) {
+        const nearest = findNearest(initialLocation.lat, initialLocation.lng);
+        mapX = nearest.mapX;
+        mapY = nearest.mapY;
+        nearestName = nearest.name;
+      }
+
       const newLocation = {
         latitude: initialLocation.lat,
         longitude: initialLocation.lng,
-        mapX: nearest.mapX,
-        mapY: nearest.mapY
+        accuracy: initialLocation.accuracy,
+        mapX,
+        mapY
       };
-      setCustomerLocation(newLocation);
-      setNeighborhoodName(nearest.name);
 
-      // Salvar localização na sessão se houver
+      setCustomerLocation(newLocation);
+
+      // Atualiza neighborhood se não tiver ou se veio do Hero
+      if (!neighborhoodName || initialLocation.neighborhood) {
+        setNeighborhoodName(initialLocation.neighborhood || nearestName);
+      }
+
+      // Atualiza sessão salva com nova localização
       if (sessionId) {
         const saved = loadSession();
         if (saved) {
           saveSession({
             ...saved,
             customerLocation: newLocation,
-            neighborhoodName: nearest.name
+            neighborhoodName: initialLocation.neighborhood || nearestName
           });
         }
       }
     }
-  }, [initialLocation, sessionId]);
+  }, [initialLocation, sessionId, neighborhoodName]);
 
   // Focus no input quando abre
   useEffect(() => {
@@ -245,12 +265,10 @@ export default function AtendimentoModal({
         setStep('tracking');
         setHasActiveSession(true);
 
-        // Salvar no localStorage
+        // Salvar no localStorage (SEM localização - ela vem sempre do Hero)
         saveSession({
           name: name.trim(),
-          sessionId: newSessionId,
-          customerLocation,
-          neighborhoodName
+          sessionId: newSessionId
         });
       }
     } catch (e) {
@@ -270,10 +288,8 @@ export default function AtendimentoModal({
   // Fechar modal - NÃO reinicia sessão, apenas minimiza se em tracking
   const handleClose = () => {
     if (step === 'tracking' && hasActiveSession) {
-      // Se está em tracking, apenas minimiza
       setMinimized(true);
     } else {
-      // Se está em identify sem sessão ativa, fecha normalmente
       onClose();
     }
   };
@@ -296,13 +312,8 @@ export default function AtendimentoModal({
       <div
         className="fixed bottom-24 right-4 z-[100] cursor-pointer"
         onClick={() => {
-          onMinimize?.(false);
-          // Reabrir modal
-          if (onClose) {
-            // Trigger para abrir - usamos um truque aqui
-            const event = new CustomEvent('openAtendimento');
-            window.dispatchEvent(event);
-          }
+          const event = new CustomEvent('openAtendimento');
+          window.dispatchEvent(event);
         }}
       >
         <div className={`border-2 rounded-2xl p-4 shadow-2xl min-w-[240px] ${
@@ -466,7 +477,7 @@ export default function AtendimentoModal({
                   </div>
                 </div>
 
-                {/* Status de localização */}
+                {/* Status de localização - mostra a do Hero */}
                 {customerLocation && (
                   <div className="rounded-xl p-3 border bg-[#25d366]/10 border-[#25d366]/30">
                     <div className="flex items-center gap-2">
@@ -475,6 +486,7 @@ export default function AtendimentoModal({
                       </svg>
                       <span className="text-[#25d366] text-sm font-medium">
                         Localização: {neighborhoodName || 'Recife'}
+                        {customerLocation.accuracy && customerLocation.accuracy <= 20 && ' (GPS)'}
                       </span>
                     </div>
                   </div>
